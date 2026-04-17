@@ -25,11 +25,12 @@ SELECT * FROM contas;
 **Pergunta 1**  
 Qual é o objetivo da tabela `contas` neste cenário prático?
 
-Simular Transferências, Demonstrar a Atomicidade e Validar Consistência
+> Simular Transferências, Demonstrar a Atomicidade e Validar Consistência
+
 **Pergunta 2**  
 Quais são os saldos iniciais de cada titular antes da execução das transações?
 
-Ana -> 1000
+>Ana -> 1000 
 Bruno -> 500
 Carlos -> 300
 Daniela -> 800
