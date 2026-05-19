@@ -58,11 +58,51 @@ INSERT INTO matricula (id, aluno_id, disciplina_id, semestre, nota, frequencia, 
 # VOLUME
 
 ```sql
-START TRANSACTION;
+INSERT INTO aluno (nome, curso, cidade, ano_ingresso)
+SELECT
+    CONCAT('Aluno ', n + 1),
+    CASE
+        WHEN MOD(n, 10) = 0 THEN 'Computacao'
+        WHEN MOD(n, 10) = 1 THEN 'Engenharia'
+        WHEN MOD(n, 10) = 2 THEN 'Administracao'
+        WHEN MOD(n, 10) = 3 THEN 'Direito'
+        WHEN MOD(n, 10) = 4 THEN 'Medicina'
+        WHEN MOD(n, 10) = 5 THEN 'Arquitetura'
+        WHEN MOD(n, 10) = 6 THEN 'Psicologia'
+        WHEN MOD(n, 10) = 7 THEN 'Economia'
+        WHEN MOD(n, 10) = 8 THEN 'Fisica'
+        ELSE 'Matematica'
+    END,
+    CASE
+        WHEN MOD(n, 8) = 0 THEN 'Maringa'
+        WHEN MOD(n, 8) = 1 THEN 'Curitiba'
+        WHEN MOD(n, 8) = 2 THEN 'Londrina'
+        WHEN MOD(n, 8) = 3 THEN 'Cascavel'
+        WHEN MOD(n, 8) = 4 THEN 'Ponta Grossa'
+        WHEN MOD(n, 8) = 5 THEN 'Foz do Iguacu'
+        WHEN MOD(n, 8) = 6 THEN 'Arapongas'
+        ELSE 'Apucarana'
+    END,
+    2018 + MOD(n, 8)
+FROM numeros
+WHERE n < 100000;
 
-UPDATE contas
-SET saldo = saldo + 10
-WHERE id = 2;
+INSERT INTO numeros (n)
+WITH RECURSIVE seq AS (
+    SELECT 0 AS n
+    UNION ALL
+    SELECT n + 1
+    FROM seq
+    WHERE n < 999999
+)
+SELECT n
+FROM seq;
+
+DROP TABLE IF EXISTS numeros;
+
+CREATE TABLE numeros (
+    n INT NOT NULL PRIMARY KEY
+);
 ```
 
 # Lista 01
@@ -71,118 +111,243 @@ WHERE id = 2;
 
 Liste todos os alunos cadastrados.
 
+```sql
+SELECT * FROM aluno;
+```
+
 ## Questão 2
 
 Mostre apenas o nome e o curso dos alunos.
+
+```sql
+SELECT nome, curso FROM aluno;
+```
 
 ## Questão 3
 
 Liste os alunos do curso de Computacao.
 
+```sql
+SELECT * FROM aluno WHERE curso = 'Computacao';
+```
+
 ## Questão 4
 
 Liste os alunos que moram em Maringa.
+
+```sql
+SELECT * FROM aluno WHERE cidade = 'Maringa';
+```
 
 ## Questão 5
 
 Mostre os alunos ordenados pelo nome em ordem alfabética.
 
+```sql
+SELECT * FROM aluno ORDER BY nome:
+```
+
 ## Questão 6
 
 Mostre os alunos ordenados pelo ano de ingresso, do mais antigo para o mais recente.
+
+```sql
+SELECT * FROM aluno ORDER BY ano_ingresso ASC;
+```
 
 ## Questão 7
 
 Liste os alunos que ingressaram a partir de 2022.
 
+```sql
+SELECT * FROM aluno WHERE ano_ingreso > 2021
+```
+
 ## Questão 8
 
 Liste os alunos cujo nome começa com a letra A.
+
+```sql
+SELECT * FROM aluno WHERE nome LIKE 'A%';
+```
 
 ## Questão 9
 
 Liste os alunos dos cursos Computacao ou Engenharia.
 
+```sql
+SELECT * FROM aluno WHERE curso IN ('Computacao', 'Engenharia');
+```
+
 ## Questão 10
 
 Liste as disciplinas com carga horária entre 60 e 80 horas.
+
+```sql
+SELECT * FROM disciplina WHERE carga_horaria BETWEEN 60 AND 80;
+```
 
 ## Questão 11
 
 Conte quantos alunos existem cadastrados.
 
+```sql
+SELECT COUNT(*) FROM aluno;
+```
+
 ## Questão 12
 
 Calcule a média das notas da tabela matricula.
+
+```sql
+SELECT AVG(nota) FROM matricula;
+```
 
 ## Questão 13
 
 Mostre a maior nota registrada.
 
+```sql
+SELECT MAX(nota) FROM matricula;
+```
+
 ## Questão 14
 
 Mostre a menor nota registrada.
+
+```sql
+SELECT MIN(nota) FROM matricula;
+```
 
 ## Questão 15
 
 Calcule a soma das cargas horárias de todas as disciplinas.
 
+```sql
+SELECT SUM(carga_horaria) FROM disciplina;
+```
+
 ## Questão 16
 
 Mostre a quantidade de alunos por curso.
+
+```sql
+SELECT curso, COUNT(*) AS qtd_alunos FROM aluno GROUP BY curso;
+```
 
 ## Questão 17
 
 Mostre a quantidade de alunos por cidade.
 
+```sql
+SELECT cidade, COUNT(*) AS qtd_alunos FROM aluno GROUP BY cidade;
+```
+
 ## Questão 18
 
 Mostre a média das notas por situação da matrícula.
+
+```sql
+SELECT situacao, AVF(nota) AS media_notas FROM matricula GROUP BY situacao;
+```
 
 ## Questão 19
 
 Mostre quantas matrículas existem por semestre.
 
+```sql
+SELECT semestre, COUNT(*), AS qtd_matricula FROM matricula GROUP BY situacao;
+```
+
 ## Questão 20
 
 Mostre os cursos que possuem mais de 1 aluno cadastrado.
+
+```sql
+SELECT curso FROM aluno GROUP BY curso HAVING CONT(*) > 1;
+```
 
 ## Questão 21
 
 Liste o nome dos alunos e a situação de suas matrículas.
 
+```sql
+SELECT a.nome, m.situacao
+FROM aluno a
+JOIN matricula m ON a.id - m.aluno_id;
+```
+
 ## Questão 22
 
 Liste o nome dos alunos e o nome das disciplinas em que estão matriculados.
+
+```sql
+SELECT a.nome AS nome_aluno, d.nome AS nome_disciplina
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+JOIN disciplina d ON m.disciplinha_id = d.id;
+```
 
 ## Questão 23
 
 Liste o nome do aluno, o nome da disciplina e a nota.
 
+```sql
+SELECT a.nome AS nome_aluno, d.nome
+```
+
 ## Questão 24
 
 Liste apenas os alunos matriculados em disciplinas do departamento Computacao.
+
+```sql
+
+```
 
 ## Questão 25
 
 Mostre o nome dos alunos que tiveram matrícula com situação Reprovado.
 
+```sql
+
+```
+
 ## Questão 26
 
 Mostre o nome dos alunos de Computacao e as disciplinas que eles cursaram.
+
+```sql
+
+```
 
 ## Questão 27
 
 Mostre a média de notas por aluno.
 
+```sql
+
+```
+
 ## Questão 28
 
 Mostre a quantidade de disciplinas cursadas por cada aluno.
+
+```sql
+
+```
 
 ## Questão 29
 
 Liste os alunos cuja média de notas foi maior que 8.
 
+```sql
+
+```
+
 ## Questão 30
 
 Mostre o departamento e a quantidade de matrículas em disciplinas de cada departamento.
+
+```sql
+
+```
