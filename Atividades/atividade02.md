@@ -293,7 +293,10 @@ JOIN disciplina d ON m.disciplinha_id = d.id;
 Liste o nome do aluno, o nome da disciplina e a nota.
 
 ```sql
-SELECT a.nome AS nome_aluno, d.nome
+SELECT a.nome AS nome_aluno, d.nome AS nome_disciplina, m.nota
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+JOIN disciplina d ON m.disciplina_id = d.id;
 ```
 
 ## Questão 24
@@ -301,7 +304,11 @@ SELECT a.nome AS nome_aluno, d.nome
 Liste apenas os alunos matriculados em disciplinas do departamento Computacao.
 
 ```sql
-
+SELECT DISTINCT a.nome
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+JOIN disciplina d ON m.disciplina_id = d.id
+WHERE d.departamento = 'Computacao';
 ```
 
 ## Questão 25
@@ -309,7 +316,10 @@ Liste apenas os alunos matriculados em disciplinas do departamento Computacao.
 Mostre o nome dos alunos que tiveram matrícula com situação Reprovado.
 
 ```sql
-
+SELECT DISTINCT a.nome
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+WHERE m.situacao = 'Reprovado';
 ```
 
 ## Questão 26
@@ -317,7 +327,11 @@ Mostre o nome dos alunos que tiveram matrícula com situação Reprovado.
 Mostre o nome dos alunos de Computacao e as disciplinas que eles cursaram.
 
 ```sql
-
+SELECT a.nome AS nome_aluno, d.nome AS nome_disciplina
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+JOIN disciplina d ON m.disciplina_id = d.id
+WHERE a.curso = 'Computacao';
 ```
 
 ## Questão 27
@@ -325,7 +339,10 @@ Mostre o nome dos alunos de Computacao e as disciplinas que eles cursaram.
 Mostre a média de notas por aluno.
 
 ```sql
-
+SELECT a.nome, AVG(m.nota) AS media_notas
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+GROUP BY a.id, a.nome;
 ```
 
 ## Questão 28
@@ -333,7 +350,10 @@ Mostre a média de notas por aluno.
 Mostre a quantidade de disciplinas cursadas por cada aluno.
 
 ```sql
-
+SELECT a.nome, COUNT(m.disciplina_id) AS qtd_disciplinas
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+GROUP BY a.id, a.nome;
 ```
 
 ## Questão 29
@@ -341,7 +361,11 @@ Mostre a quantidade de disciplinas cursadas por cada aluno.
 Liste os alunos cuja média de notas foi maior que 8.
 
 ```sql
-
+SELECT a.nome
+FROM aluno a
+JOIN matricula m ON a.id = m.aluno_id
+GROUP BY a.id, a.nome
+HAVING AVG(m.nota) > 8;
 ```
 
 ## Questão 30
@@ -349,5 +373,8 @@ Liste os alunos cuja média de notas foi maior que 8.
 Mostre o departamento e a quantidade de matrículas em disciplinas de cada departamento.
 
 ```sql
-
+SELECT d.departamento, COUNT(m.id) AS qtd_matriculas
+FROM disciplina d
+JOIN matricula m ON d.id = m.disciplina_id
+GROUP BY d.departamento;
 ```
