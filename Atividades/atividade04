@@ -27,8 +27,12 @@ SELECT * FROM contas;
 **Pergunta 1**  
 Qual é a finalidade de manter dados iniciais conhecidos antes dos testes de concorrência?
 
+> Ter uma base para verificar se alguma operação futura causou alguma anomalia ou se funcionaram certo.
+
 **Pergunta 2**  
 Por que é importante que a tabela esteja em um estado consistente antes do início dos experimentos?
+
+> Se os dados começarem corrompidos, não teremos como verificar se um erro futuro foi por causa da falha de concorrência ou se já estava inconsistente
 
 ---
 
@@ -77,11 +81,17 @@ COMMIT;
 **Pergunta 3**  
 O que aconteceu com a operação realizada na Sessão 2?
 
+> A sessão 2 não foi concluída imediatamente, ela ficou em estado de espera, aguardando na fila.
+
 **Pergunta 4**  
 Por que a segunda sessão precisou aguardar?
 
+> Porque a sessão 1 acessou o registro primeiro e não o liberou. Para evitar inconsistências, o SGBD protegeu o dado obrigando a sessão 2 a aguardar a liberação.
+
 **Pergunta 5**  
 Qual é a função do comando `FOR UPDATE` nesse experimento?
+
+> O `FOR UPDATE` serve para forçar um bloqueio explícito logo no momento do `SELECT`.
 
 ---
 
@@ -124,8 +134,12 @@ SELECT * FROM contas;
 **Pergunta 6**  
 Por que, nesse caso, as duas transações tendem a coexistir sem espera significativa?
 
+> Porque elas não estão disputando o mesmo registro físico. A sessão 1 está alterando o registro de id 1 enquanto a sessão 2 está alterando o registro de id 4
+
 **Pergunta 7**  
 O que esse comportamento revela sobre bloqueios em nível de linha?
+
+> Que o bloqueio em nível de linha bloqueia apenas a linha afetada, e não a tabela inteira.
 
 ---
 
@@ -158,8 +172,12 @@ ROLLBACK;
 **Pergunta 8**  
 Qual era o objetivo de consultar o mesmo registro em outra sessão antes do `COMMIT`?
 
+> O objetivo era descobrir se a sessão 2 iria enxergar o dado temporário na sessão 1 ou o valor persistido no banco.
+
 **Pergunta 9**  
 Como esse experimento se relaciona com o conceito de isolamento?
+
+> O isolamento obriga o SGBD a ocultar operações inacabadas. Se a sessão 2 conseguisse ler o valor temporário da sessão 1, estaria ocorrendo a temida anomalia da "Leitura Suja" (Dirty Read).
 
 ---
 
@@ -200,8 +218,12 @@ COMMIT;
 **Pergunta 10**  
 O valor lido na Sessão 1 permaneceu o mesmo ou mudou?
 
+> O valor lido mudou.
+
 **Pergunta 11**  
 Que tipo de fenômeno esse teste procura identificar?
+
+> É conhecido como "Leitura Não Repetível" (Non-repeatable read). Ocorre quando, dentro de uma única transação, uma sessão consulta a mesma linha duas vezes e obtém valores diferentes, porque outra transacão concorrente alterou o dado nesse intervalo.
 
 ---
 
@@ -242,8 +264,12 @@ SELECT * FROM contas WHERE id = 4;
 **Pergunta 12**  
 Por que operações concorrentes sobre o mesmo registro exigem maior controle?
 
+> Poruqe elas geram conflito direto. Como as duas sessões querem gravar valores por cima da mesma linha, se o SGBD não criar uma "fila", as transações vão atropelar uma à outra, gerando uma inconsistência dos dados.
+
 **Pergunta 13**  
 Que inconsistência pode surgir quando duas transações tentam atualizar o mesmo dado quase ao mesmo tempo?
+
+> Atualização perdida (lost update). Isso acontece quando as duas transações leem o mesmo valor base e gravam a alteração por cima uma da outra. Consequentemente, a alteração feita pela primeira transação é perdida, sendo sobreescrita pela segunda.
 
 ---
 
@@ -278,8 +304,12 @@ COMMIT;
 **Pergunta 14**  
 Qual evidência mostra que havia um bloqueio ativo sobre o registro?
 
+> A sessão 2 não conseguiu completar a sua operação instantaneamente e ficou em estado de espera.
+
 **Pergunta 15**  
 Por que a liberação do lock depende do fim da transação?
+
+> Para garantir a propriedade do Isolamento e respeitar protocolos de segurança.
 
 ---
 
@@ -310,8 +340,12 @@ COMMIT;
 **Pergunta 16**  
 Por que a segunda leitura com `FOR UPDATE` não pôde prosseguir imediatamente?
 
+> Porque a sessão 1 bloqueou a linha antes da segunda transação, consequentemente a sessão 2 foi obrigada a esperar. 
+
 **Pergunta 17**  
 Em que essa situação difere de uma consulta `SELECT` comum?
+
+> Um `SELECT` comum apenas lê a informação. O SGBD permite que vários `SELECTs` comuns aconteça, ao mesmo tempo sem espera (usando bloqueios compartilhados).
 
 ---
 
@@ -328,8 +362,12 @@ Considere o seguinte cenário conceitual:
 **Pergunta 18**  
 Qual seria o saldo correto ao final, caso ambas as operações fossem consideradas corretamente?
 
+> Se o sistema respeitar a concorrência corretamente como uma fila, o saldo final deveria ser 700.
+
 **Pergunta 19**  
 Por que o resultado 800 caracteriza uma atualização perdida?
+
+> Porque o trabalho da Transação A foi apagado do disco.
 
 ---
 
@@ -375,8 +413,12 @@ SELECT * FROM log_operacoes;
 **Pergunta 20**  
 Por que inserções em linhas diferentes nem sempre geram conflito direto?
 
+> Porque elas não estão competindo pelo mesmo espaço físico no disco.
+
 **Pergunta 21**  
 O que esse experimento mostra sobre concorrência quando não há disputa pelo mesmo registro?
+
+> Mostra que banco de dados é otimizado para para o paralelismo.
 
 ---
 
@@ -405,8 +447,12 @@ WHERE id = 3;
 **Pergunta 22**  
 Quais impactos um bloqueio mantido por muito tempo pode causar em um sistema real?
 
+> Um bloqueio prolongado paralisa o sistema. Todas as outras sessões que precisarem acessar aquele registro travarão em uma fila de espera.
+
 **Pergunta 23**  
 Por que transações longas tendem a ser indesejáveis em ambientes concorrentes?
+
+> Porque transações longas seguram o bloqueio por muito tempo, impedindo que outras transações trabalhem. (starvation)
 
 ---
 
