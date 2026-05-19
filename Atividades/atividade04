@@ -468,8 +468,12 @@ SELECT * FROM log_operacoes;
 **Pergunta 24**  
 Como verificar se o banco permaneceu consistente após todos os cenários executados?
 
+> Para verificar a consistência, deve-se consultar os dados finais da tabela e conferir se eles respeitam as regras de negócios iniciais.
+
 **Pergunta 25**  
 Por que a análise final dos dados é importante após testes de concorrência?
+
+> Porque é a prova real de que não houve falha nos testes.
 
 ---
 
@@ -478,47 +482,78 @@ Por que a análise final dos dados é importante após testes de concorrência?
 ### Questão 26
 Explique o que é concorrência em banco de dados.
 
+> A concorrência em um banco de dados é a capacidade do sistema de gerenciar o acesso simultâneo de múltiplos usuários e transações aos mesmos dados.
+
 ### Questão 27
 Descreva o papel dos bloqueios no controle de concorrência.
+
+> Os bloqueios servem para forçar uma exclusão mútua indicando o status de registro e criando uma fila organizada. Isso impede que transações diferentes tentem alterar o exato mesmo dado ao mesmo tempo.
 
 ### Questão 28
 Explique a diferença entre acessar registros iguais e registros diferentes em transações simultâneas.
 
+> Acessar registros diferentes geralmente não gera conflitos, pois o banco aplica bloqueios em nível de linha, permitindo que duas transações ocorram ao mesmo tempo.
+> Acessar registros iguais para atualização gera um gargalo de concorrência, ou seja, o SGBD é forçado a dar prioridade para a primeira transação, deixando a segunda em espera.
+
 ### Questão 29
 Por que `FOR UPDATE` é importante em determinadas operações críticas?
+
+> Porque ele aplica um bloqueio explícito logo no momento da leitura.
 
 ### Questão 30
 O que significa dizer que uma transação ficou esperando outra liberar um recurso?
 
+> Significa que a transação precisa acessar um registro que está bloqueado no momento (pertence a outra transação que ainda não terminou).
+
 ### Questão 31
 Explique o conceito de atualização perdida.
+
+> Atualização perdida (lost update) ocorre quando duas transações leem o mesmo registro inicial ao mesmo tempo e depois gravam seus novos valores de volta no disco. A última a gravar acaba sobrescrevendo o valor gravado pela primeira transação.
 
 ### Questão 32
 Descreva por que o isolamento é essencial em sistemas multiusuário.
 
+> O Isolamento garante que transações concorrentes fiquem completamente isoladas e protegidas umas das outras. É essencial para impedir que uma transação consiga ler um dado temporário alterado por outra transação.
+
 ### Questão 33
 Explique como uma leitura pode ser afetada por outra transação ainda não concluída.
+
+> Se o banco não aplicar o isolamento corretamente, uma transação pode ler um dado que está sendo modificado por outra transação.
 
 ### Questão 34
 Por que transações longas podem prejudicar o desempenho de sistemas concorrentes?
 
+> Porque se outras transações dependem de registros que estejam bloqueados por uma transação longa, eles ficam muito tempo em estado de espera e gera lentidão no sistema.
+
 ### Questão 35
 Qual é a relação entre concorrência e consistência dos dados?
+
+> A concorrência significa que diferentes usuários acessam o banco ao mesmo tempo. O controle de concorrência serve justamente para garantir que as operações ocorram de forma segura e garantir a consistência.
 
 ### Questão 36
 Descreva um exemplo real em que duas transações possam disputar o mesmo dado.
 
+> Dois usuários acessando um e-commerce ao mesmo tempo e tentando comprar a última unidade de um item em estoque ao mesmo tempo.
+
 ### Questão 37
 Explique por que nem toda operação simultânea gera conflito.
+
+> O conflito só ocorre quando duas transações cruzam os caminhos.
 
 ### Questão 38
 Como o banco de dados contribui para impedir que alterações simultâneas corrompam os dados?
 
+> Ele contrinui usando mecanismos de bloqueios e protocolos, garantindo o Isolamento.
+
 ### Questão 39
 Explique o que aconteceria em um sistema bancário sem mecanismos de lock.
 
+> Sem mecanismos de bloqueio, sofreria lost update constantemente. Dois depósitos simultâneos resultaria em apenas um depósito (o último a ser executado) e o dinheiro seria perdido do sistema.
+
 ### Questão 40
 Qual a importância de observar a ordem de execução das transações em testes práticos?
+
+> Observar a ordem nos testes comprova quem chegou primeiro, quem teve o lock, quem foi forçado a esperar.
 
 ---
 
@@ -560,6 +595,8 @@ Com base nos testes realizados, produza um texto explicando:
 ### Questão 41
 Considerando todos os experimentos realizados, explique de forma integrada como concorrência, bloqueios e isolamento atuam juntos para evitar inconsistências no banco de dados.
 
+> A concorrência é a necessidade real de vários usuários acessarem o banco ao mesmo tempo. Para que isso não vire um caos, o banco utiliza bloqueios (locks) para criar filas de espera em registros que estão sendo disputados. E é o uso desses bloqueios que garante o Isolamento.
+
 ---
 
 ## 10. Desafio adicional
@@ -567,11 +604,21 @@ Considerando todos os experimentos realizados, explique de forma integrada como 
 ### Questão 42
 Adapte os testes realizados para um sistema de estoque em que dois usuários tentam vender o mesmo produto simultaneamente. Explique quais riscos existem e como o banco pode evitá-los.
 
+> Se ambos lerem o estoque como 1 e subtraírem 1, o banco pode gravar 0 duas vezes, vendendo o mesmo produto para duas pessoas.
+> Para evitar, a primeira transação que chega deve aplicar um `FOR UPDATE`.
+
 ### Questão 43
 Adapte os testes para um sistema de matrícula acadêmica, em que duas pessoas tentam ocupar a última vaga da mesma disciplina ao mesmo tempo.
+
+> O primeiro aluno que clicar em matricular deve gerar um bloqueio na linha da disciplina. O segundo aluno ficará esperando o primeiro aluno terminar a matrícula e a vaga cair para zero, gerando que não há mais vagas para o segundo aluno. 
 
 ### Questão 44
 Explique como você organizaria um experimento prático no VS Code com duas sessões para demonstrar espera por lock a outros estudantes.
 
+> Abriria duas sessões no conectadas no mesmo banco. Na sessão 1, iniciaria uma transação e rodaria um `SELECT ... FOR UPDATE` em um registro, sem executar `COMMIT`. Na sessão 2, tentaria atualizar a mesma linha, verificando que essa transação ficaria em estado de espera. Então, rodaria o `COMMIT` na primeira transação e a sessão 2 seria destravada e concluiría sua operação.
+
 ### Questão 45
 Compare um cenário com controle de concorrência e outro sem controle de concorrência, destacando os impactos sobre a confiabilidade dos dados.
+
+> Em um cenário sem controle de concorrência, múltiplas transações podem ler e gravar sobre o mesmo dado simultaneamente. O impacto é a perda de confiabilidade dos dados. Sem regras para organizar os acessos, ocorrem anomalias tipo lost update.
+> Com controle de concorrência, o SGBD utiliza as propriedades de isolamento e os bloqueios organizam o acesso. Se duas transações tentarem alterar o mesmo registro ao mesmo tempo, o banco força uma delas a entrar em estado de espera
