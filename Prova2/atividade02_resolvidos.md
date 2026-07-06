@@ -1,21 +1,3 @@
-# StreamFlix — Exercícios Resolvidos (MongoDB)
-
-## Como rodar isso na prática
-
-1. **Crie um cluster no MongoDB Atlas** (gratuito, tier M0) em cloud.mongodb.com, com usuário/senha de acesso e seu IP liberado em Network Access.
-2. **Instale a extensão "MongoDB for VS Code"** no VS Code.
-3. Na extensão, clique em **Connect** e cole a *connection string* do seu cluster (Atlas → Connect → Drivers, algo como `mongodb+srv://usuario:senha@cluster0.xxxxx.mongodb.net/`).
-4. Crie um **Playground** (ícone da extensão → "Create MongoDB Playground", ou `Ctrl+Shift+P` → "MongoDB: Create Playground"). Isso gera um arquivo `.mongodb`.
-5. Cole o bloco de criação da base (seção 2 do material) num playground e rode ele primeiro (botão ▶ "Run All" no canto superior direito, ou `Ctrl+Shift+E` / `Cmd+Shift+E`).
-6. Para cada exercício, cole o comando correspondente no playground e:
-   - **Run All** roda o arquivo inteiro;
-   - **selecione o trecho de código** e use "Run Selected Lines" (clique direito → "Run Selected Lines from Playground") para rodar só aquele comando.
-7. O resultado aparece num painel lateral ("Playground Result").
-
-Alternativa sem VS Code: instale o `mongosh` (MongoDB Shell) e rode `mongosh "sua_connection_string"`, colando os comandos direto no terminal.
-
----
-
 ## Nível 1 — Primeiros contatos
 
 **1.**
